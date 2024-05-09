@@ -1,0 +1,56 @@
+[
+    Buffer
+]
+
+[ TODO ]
+
+[
+    List
+]
+[ list type data ]
+forge.list.metadata()(byte_size) = {
+    [ set data ]
+    forge.set(forge.integer.4)(cell_count)
+    forge.integer.multiply(forge.constant.cell_byte_size cell_count)(byte_size)
+}
+
+[ set list ]
+forge.list.set(list.start list.end list.buffer.start list.buffer.end list.filled_index list.increase)() = {
+    [ set data ]
+    forge.copy(list.start)(address)
+    forge.io.cell_to_address(#forge.always list.buffer.start forge.constant.cell_bit_size)(address)
+    forge.integer.add(address forge.constant.cell_byte_size)(address)
+    forge.io.cell_to_address(#forge.always list.buffer.end forge.constant.cell_bit_size)(address)
+    forge.integer.add(address forge.constant.cell_byte_size)(address)
+    forge.io.cell_to_address(#forge.always list.filled_index forge.constant.cell_bit_size)(address)
+    forge.integer.add(address forge.constant.cell_byte_size)(address)
+    forge.io.cell_to_address(#forge.always list.increase forge.constant.cell_bit_size)(address)
+}
+
+[ get list ]
+forge.list.get(list.start list.end)(list.buffer.start list.buffer.end list.filled_index list.increase) = {
+    [ get data ]
+    forge.copy(list.start)(address)
+    forge.io.address_to_cell(#forge.always address forge.constant.cell_bit_size)(list.buffer.start)
+    forge.integer.add(address forge.constant.cell_byte_size)(address)
+    forge.io.address_to_cell(#forge.always address forge.constant.cell_bit_size)(list.buffer.end)
+    forge.integer.add(address forge.constant.cell_byte_size)(address)
+    forge.io.address_to_cell(#forge.always address forge.constant.cell_bit_size)(list.filled_index)
+    forge.integer.add(address forge.constant.cell_byte_size)(address)
+    forge.io.address_to_cell(#forge.always address forge.constant.cell_bit_size)(list.increase)
+}
+
+[ open a list ]
+forge.list.open(increase)(list.start list.end) = {
+    [ get list metadata ]
+    forge.list.metadata()(byte_size)
+
+    [ allocate list container ]
+    forge.memory.request(byte_size)(list.start list.end)
+
+    [ allocate data buffer ]
+    forge.memory.request(increase)(list.buffer.start list.buffer.end)
+
+    [ set data in list ]
+    forge.list.set(list.start list.end list.buffer.start list.buffer.end forge.constant.0 increase)()
+}
