@@ -1,0 +1,108 @@
+[ main ]
+main()() = {
+    [ test list ]
+    test.list()()
+
+    [ test buffer ]
+    [ test.buffer()() ]
+}
+
+[ test buffer ]
+test.buffer()() = {
+    [ setup initial string ]
+    forge.set("hello")(embedded.start embedded.end)
+
+    [ get length ]
+    forge.buffer.calculate_length(embedded.start embedded.end)(embedded.length)
+    forge.memory.request(embedded.length)(copy.start copy.end)
+
+    [ print initial buffer ]
+    forge.print.buffer_as_string(embedded.start embedded.end)()
+    forge.print.new_line()()
+
+    [ print second buffer ]
+    forge.print.buffer_as_string(copy.start copy.end)()
+    forge.print.new_line()()
+
+    [ perform copy ]
+    forge.copy.buffer(embedded.start embedded.end)(copy.start copy.end)
+
+    [ print copy ]
+    forge.print.buffer_as_string(copy.start copy.end)()
+    forge.print.new_line()()
+
+    [ create substring ]
+    forge.integer.add(copy.start forge.constant.1)(substring.start)
+    forge.integer.subtract(copy.end forge.constant.1)(substring.end)
+
+    [ print buffer buffer ]
+    forge.print.buffer_as_string(substring.start substring.end)()
+    forge.print.new_line()()
+
+    [ create new buffer ]
+    forge.buffer.calculate_length(substring.start substring.end)(substring.length)
+    forge.memory.request(substring.length)(new.start new.end)
+
+    [ copy buffer ]
+    forge.copy.buffer(substring.start substring.end)(new.start new.end)
+
+    [ print buffer ]
+    forge.print.buffer_as_string(new.start new.end)()
+}
+
+[ test list ]
+test.list()() = {
+    [ print test start ]
+    forge.set("Testing List...%0a;")(start end)
+    forge.print.buffer_as_string(start end)()
+
+    [ open list ]
+    forge.set(forge.integer.4)(list.increase)
+    forge.list.open(list.increase)(list.start list.end)
+
+    [ get list data ]
+    forge.list.get(list.start list.end)(list.buffer.start list.buffer.end list.filled_index list.increase)
+
+    [ print list data ]
+    forge.print.integer.unsigned(list.buffer.start)()
+    forge.print.new_line()()
+    forge.print.integer.unsigned(list.buffer.end)()
+    forge.print.new_line()()
+    forge.print.integer.unsigned(list.filled_index)()
+    forge.print.new_line()()
+    forge.print.integer.unsigned(list.increase)()
+    forge.print.new_line()()
+
+    [ insert data ]
+    forge.set("girfs")(start end)
+    forge.list.append.buffer_contents(list.start list.end start end)()
+    forge.set("3333")(start end)
+    forge.list.append.buffer_contents(list.start list.end start end)()
+    forge.set("oof")(start end)
+    forge.list.append.buffer_contents(list.start list.end start end)()
+    forge.set("girfurjigglestan")(start end)
+    forge.list.append.buffer_contents(list.start list.end start end)()
+    forge.set("E")(start end)
+    forge.list.append.buffer_contents(list.start list.end start end)()
+
+    [ print buffer ]
+    forge.list.calculate.filled_address(list.start list.end)(list.filled_buffer.start list.filled_buffer.end)
+    forge.print.buffer_as_string(list.filled_buffer.start list.filled_buffer.end)()
+    forge.print.new_line()()
+
+    [ get list data ]
+    forge.list.get(list.start list.end)(list.buffer.start list.buffer.end list.filled_index list.increase)
+
+    [ print list data ]
+    forge.print.integer.unsigned(list.buffer.start)()
+    forge.print.new_line()()
+    forge.print.integer.unsigned(list.buffer.end)()
+    forge.print.new_line()()
+    forge.print.integer.unsigned(list.filled_index)()
+    forge.print.new_line()()
+    forge.print.integer.unsigned(list.increase)()
+    forge.print.new_line()()
+
+    [ close list ]
+    forge.list.close(list.start list.end)()
+}

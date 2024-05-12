@@ -2,8 +2,6 @@
     Buffer
 ]
 
-[ TODO ]
-
 [
     List
 ]
@@ -53,4 +51,115 @@ forge.list.open(increase)(list.start list.end) = {
 
     [ set data in list ]
     forge.list.set(list.start list.end list.buffer.start list.buffer.end forge.constant.0 increase)()
+}
+
+[ close a list ]
+forge.list.close(list.start list.end)() = {
+    [ retrieve data ]
+    forge.list.get(list.start list.end)(list.buffer.start list.buffer.end list.filled_index list.increase)
+
+    [ close buffers ]
+    forge.memory.return(list.buffer.start list.buffer.end)()
+    forge.memory.return(list.start list.end)()
+}
+
+[ check for space and expand list if necessary ]
+forge.list.request_space(list.start list.end space_needed)() = {
+    [ get list data ]
+    forge.list.get(list.start list.end)(list.buffer.start list.buffer.end list.filled_index list.increase)
+
+    [ check if space is required ]
+    forge.integer.add(list.filled_index space_needed)(new_filled_index)
+    forge.buffer.calculate_length(list.buffer.start list.buffer.end)(list.buffer_length)
+    forge.integer.subtract(list.buffer_length forge.constant.1)(list.buffer_max)
+    forge.integer.within_range(forge.constant.0 new_filled_index list.buffer_max #forge.never)(#doesnt_need_more_space)
+
+    [ jump past space allocator ]
+    forge.jump(#doesnt_need_more_space @skip_reallocation)()
+
+    [ calculate new list size from increase ]
+    forge.integer.divide(new_filled_index list.increase)(increase_units_long)
+    forge.integer.add(increase_units_long forge.constant.1)(increase_units_long)
+    forge.integer.multiply(increase_units_long list.increase)(new_allocation_size)
+
+    [ allocate new buffer ]
+    forge.memory.request(new_allocation_size)(list.new_buffer.start list.new_buffer.end)
+
+    [ calculate the end of the old buffer but for the new buffer ]
+    forge.integer.add(list.new_buffer.start list.filled_index)(new_buffer.old_end)
+
+    [ setup list buffer currents ]
+    forge.integer.add(list.buffer.start list.filled_index)(list.buffer.current.end)
+
+    [ copy old buffer to new buffer ]
+    forge.copy.buffer(list.buffer.start list.buffer.current.end)(list.new_buffer.start new_buffer.old_end)
+
+    [ deallocate old buffer ]
+    forge.memory.return(list.buffer.start list.buffer.end)()
+
+    [ set new buffer to list ]
+    forge.copy(list.new_buffer.start)(list.buffer.start)
+    forge.copy(list.new_buffer.end)(list.buffer.end)
+
+    [ skip reallocation ]
+    @skip_reallocation
+
+    [ update list ]
+    forge.list.set(list.start list.end list.buffer.start list.buffer.end list.filled_index list.increase)()
+}
+
+[ append data to list ]
+forge.list.append.buffer_contents(list.start list.end buffer.start buffer.end)() = {
+    [ calculate buffer size ]
+    forge.buffer.calculate_length(buffer.start buffer.end)(buffer.length)
+
+    [ expand list if necessary ]
+    forge.list.request_space(list.start list.end buffer.length)()
+
+    [ calculate buffer copy addresses ]
+    forge.list.calculate.filled_address(list.start list.end)(list.filled.start list.filled.end)
+    forge.integer.add(list.filled.end forge.constant.1)(list.new_data.start)
+    forge.integer.add(list.new_data.start buffer.length)(list.new_data.end)
+    forge.integer.subtract(list.new_data.end forge.constant.1)(list.new_data.end)
+
+    [ copy data ]
+    forge.copy.buffer(buffer.start buffer.end)(list.new_data.start list.new_data.end)
+
+    [ get list ]
+    forge.list.get(list.start list.end)(list.buffer.start list.buffer.end list.filled_index list.increase)
+
+    [ update list filled index ]
+    forge.integer.add(list.filled_index buffer.length)(list.new_filled_index)
+
+    [ update list ]
+    forge.list.set(list.start list.end list.buffer.start list.buffer.end list.new_filled_index list.increase)()
+}
+
+[ calculate list end address ]
+forge.list.calculate.filled_address(list.start list.end)(list.filled_buffer.start list.filled_buffer.end) = {
+    [ get list data ]
+    forge.list.get(list.start list.end)(list.buffer.start list.buffer.end list.filled_index list.increase)
+
+    [ set list filled buffer start ]
+    forge.copy(list.buffer.start)(list.filled_buffer.start)
+
+    [ calculate end address ]
+    forge.integer.add(list.buffer.start list.filled_index)(list.filled_buffer.end)
+    forge.integer.subtract(list.filled_buffer.end forge.constant.1)(list.filled_buffer.end) [ adjusts list end address to proper place ]
+}
+
+[
+    Printing
+]
+
+[ print new line ]
+forge.print.new_line()() = {
+    forge.set(forge.integer.10)(new_line)
+    forge.print.character(new_line)()
+}
+
+[ print space ]
+forge.print.space()() = {
+    forge.set(forge.integer.32)(space)
+    forge.print.character(space)()
 }
