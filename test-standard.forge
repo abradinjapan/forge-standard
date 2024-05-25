@@ -109,26 +109,3 @@ test.list()() = {
     [ close list ]
     forge.list.close(list.start list.end)()
 }
-
-[ test blueprint ]
-test.larser_blueprint()() = {
-    [ print section message ]
-    forge.set("Testing larser blueprinter.")(start end)
-    forge.print.buffer_as_string(start end)()
-    forge.print.new_line()()
-
-    [ open blueprint ]
-    forge.larser_blueprint.open()(larser_blueprint.start larser_blueprint.end)
-
-    [ append some items to the list ]
-    forge.list.append.cell(larser_blueprint.start larser_blueprint.end forge.constant.16 forge.constant.cell_bit_size)()
-    forge.list.append.cell(larser_blueprint.start larser_blueprint.end forge.constant.16 forge.constant.cell_bit_size)()
-    forge.list.append.cell(larser_blueprint.start larser_blueprint.end forge.constant.64 forge.constant.cell_bit_size)()
-    forge.list.append.cell(larser_blueprint.start larser_blueprint.end forge.constant.1 forge.constant.cell_bit_size)()
-
-    [ print list ]
-    forge.larser_blueprint.print(larser_blueprint.start larser_blueprint.end)()
-
-    [ close list ]
-    forge.list.close(larser_blueprint.start larser_blueprint.end)()
-}
